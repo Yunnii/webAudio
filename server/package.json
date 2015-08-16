@@ -1,0 +1,13 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "scripts": {
+    "run": "./node_modules/.bin/webpack --display-error-details",
+    "dev": "webpack-dev-server --devtool eval --progress --colors --content-base build",
+    "deps": "npm install",
+    "watch": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "*"
+  }
+}
