@@ -17,6 +17,44 @@ var BufferLoader = function (context, canvas) {
 
     this.analyser = analyser;
     this.bufferLength = analyser.frequencyBinCount;
+
+    var reader = new FileReader();
+    reader.onload = this.loadFile.bind(this);
+    reader.onerror = function(error) {
+        console.log('Error loading: ');
+        console.log(error);
+    };
+
+    this.reader = reader;
+};
+
+BufferLoader.prototype.fileChange = function(e) {
+    var self = this,
+        file = e.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    self.fileInfo = file;
+    self.reader.readAsArrayBuffer(file);
+};
+
+BufferLoader.prototype.decode = function(source) {
+    var self = this;
+
+    self.context.decodeAudioData(source, function (buffer) {
+        self.buffer = buffer;
+        self.isLoaded = true;
+    }, function (error) {
+        console.log('Error loading: ');
+        console.log(error);
+    });
+};
+
+BufferLoader.prototype.loadFile = function(e, fileInfo) {
+    console.log("track name: " + this.fileInfo.name);
+    this.decode(e.target.result);
 };
 
 BufferLoader.prototype.load = function (url) {
@@ -28,14 +66,10 @@ BufferLoader.prototype.load = function (url) {
     request.open('GET', url, true);
     request.responseType = 'arraybuffer';
 
+    this.decode(request.response);
+
     request.onload = function () {
-        self.context.decodeAudioData(request.response, function (buffer) {
-            self.buffer = buffer;
-            self.isLoaded = true;
-        }, function (error) {
-            console.log('Error loading: ', url);
-            console.log(error);
-        })
+        self.decode(request.response);
     };
 
     request.send();
@@ -65,6 +99,7 @@ BufferLoader.prototype.play = function () {
     this.source = source;
     this.visualize();
 
+    this.isPlaying = true;
     this.source.start(0);
 };
 
@@ -73,6 +108,7 @@ BufferLoader.prototype.stop = function () {
         return;
     }
 
+    this.isPlaying = false;
     this.source.stop(0);
 };
 
@@ -114,8 +150,26 @@ function init() {
     try {
         var context = new window.AudioContext();
         var canvas = document.querySelector('.visualizer');
+        var play = document.querySelector('.player__button_type_play');
+        var files = document.querySelector('.open_file');
 
         musicLoader = new BufferLoader(context, canvas);
+
+        play.addEventListener("click", function(){
+            if(!musicLoader.isLoaded) {
+                return;
+            }
+
+            if(musicLoader.isPlaying) {
+                musicLoader.stop();
+                play.setAttribute("class", "player__button player__button_type_play");
+            } else {
+                musicLoader.play();
+                play.setAttribute("class", "player__button player__button_type_stop");
+            }
+        });
+
+        files.addEventListener("change", musicLoader.fileChange.bind(musicLoader))
     } catch (e) {
         alert('Web Audio Content is not supported in this browser');
     }

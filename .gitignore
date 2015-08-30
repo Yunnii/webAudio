@@ -1,6 +1,8 @@
 .DS_Store
 .idea
 static/1.mp3
+static/2.mp3
+static/*.mp3
 static/1.wav
 node_modules
 static/node_modules

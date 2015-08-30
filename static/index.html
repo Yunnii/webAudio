@@ -2,9 +2,18 @@
 <html>
 <head>
     <title>Hello</title>
+    <link rel="stylesheet" href="index.css">
     <script src="index.js"></script>
 </head>
 <body>
-<canvas class="visualizer" width="800" height="100"></canvas>
+<div class="player">
+    <div class="player__control">
+        <div class="player__button player__button_type_backward"></div>
+        <div class="player__button player__button_type_play"></div>
+        <div class="player__button player__button_type_forward"></div>
+    </div>
+    <input class="open_file" type="file" id="files">
+    <canvas class="visualizer" width="800" height="150"></canvas>
+</div>
 </body>
 </html>
